@@ -1,7 +1,8 @@
 <template>
     <div class="container">
+        <div class="temp"><input type="text" @keydown="getBullet"></div>
         <div class="panel">
-            <aircraft speed="20"><stone /></aircraft>
+            <aircraft speed="20" :boom="boom"><stone /></aircraft>
         </div>
         <div class="plane"></div>
     </div>
@@ -14,18 +15,28 @@
         name: "App",
         components: {
             aircraft: Aircraft,
-            stone: Stone
+            stone: Stone,
         },
         data() {
             return {
-                speed: 20       //游戏开始初识速度为20
+                speed: 20,       //游戏开始初识速度为20
+                bulletQueue: [],
+                boom: false
             }
         },
         methods: {
-
+            getBullet(e) {
+                this.bulletQueue.push(e.key);
+            }
+        },
+        watch: {
+            bulletQueue(newVal, oldVal) {
+                if(newVal.join('') === 'hello') {
+                    this.boom = true;
+                }
+            }
         },
         mounted() {
-
         }
     }
 </script>

@@ -1,5 +1,5 @@
 <template>
-    <div ref="aircraft" class="aircraft">
+    <div v-if="!boom" ref="aircraft" class="aircraft">
         <slot />
     </div>
 </template>
@@ -10,6 +10,10 @@
         props: {
             speed: {
                 type: String,
+                required: true
+            },
+            boom: {
+                type: Boolean,
                 required: true
             }
         },
