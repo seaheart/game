@@ -2,7 +2,9 @@
     <div class="container">
         <div class="temp"><input type="text" @keydown="getBullet"></div>
         <div class="panel">
-            <aircraft speed="20" :boom="boom"><stone /></aircraft>
+            <aircraft ref="aircraft" v-for="(charge, index) in chargeQueue" :key="index" speed="20" :boom="boom">
+                <stone :charge="charge"/>
+            </aircraft>
         </div>
         <div class="plane"></div>
     </div>
@@ -11,6 +13,8 @@
 <script>
     import Aircraft from "./components/Aircraft.vue";
     import Stone from "./components/Stone.vue";
+    import { mockData } from "./mock";
+
     export default {
         name: "App",
         components: {
@@ -21,12 +25,17 @@
             return {
                 speed: 20,       //游戏开始初识速度为20
                 bulletQueue: [],
-                boom: false
+                chargeQueue: ['world', 'hello'],    //炸药包队列
+                boom: false,
             }
         },
         methods: {
             getBullet(e) {
                 this.bulletQueue.push(e.key);
+            },
+            generateStone() {
+                const wordsSum = mockData.length;
+                const randomIndex = (Math.random() * wordsSum).toFixed(0);
             }
         },
         watch: {
@@ -37,6 +46,10 @@
             }
         },
         mounted() {
+            setInterval(() => {
+                this.generateStone();
+            }, 1000)
+            console.log(this.$refs['aircraft'])
         }
     }
 </script>

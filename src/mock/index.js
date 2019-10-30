@@ -1,0 +1,22 @@
+export const mockData = [
+    "hello",
+    "world",
+    "good",
+    "family",
+    "test",
+    "change",
+    "dream",
+    "handsome",
+    "ugly",
+    "kind",
+    "kindness",
+    "useful",
+    "best",
+    "help",
+    "wish",
+    "ok",
+    "handle",
+    "frame",
+    "kid",
+    "main"
+];

@@ -1,10 +1,16 @@
 <template>
-    <div class="stone">hello</div>
+    <div class="stone">{{charge}}</div>
 </template>
 
 <script>
     export default {
-        name: "Stone"
+        name: "Stone",
+        props: {
+            charge: {
+                type: String,
+                required: true
+            }
+        }
     }
 </script>
 
