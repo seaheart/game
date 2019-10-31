@@ -1,9 +1,9 @@
 <template>
     <div class="container">
         <div class="temp"><input type="text" @keydown="getBullet"></div>
-        <div class="panel">
-            <aircraft ref="aircraft" v-for="(charge, index) in chargeQueue" :key="index" speed="20" :boom="boom">
-                <stone :charge="charge"/>
+        <div class="panel" ref="panel">
+            <aircraft ref="aircraft" v-for="(charge, index) in chargeQueue" :key="index" speed="20" :left="charge.left" :boom="boom">
+                <stone :charge="charge.content"/>
             </aircraft>
         </div>
         <div class="plane"></div>
@@ -14,6 +14,7 @@
     import Aircraft from "./components/Aircraft.vue";
     import Stone from "./components/Stone.vue";
     import { mockData } from "./mock";
+    import Charge from './model/Charge'
 
     export default {
         name: "App",
@@ -23,9 +24,11 @@
         },
         data() {
             return {
+                panelWidth: 0,    //控制面板宽度
                 speed: 20,       //游戏开始初识速度为20
-                bulletQueue: [],
-                chargeQueue: ['world', 'hello'],    //炸药包队列
+                bulletQueue: [],    //子弹队列，打飞机专用
+                initChargeQueue: [],    //炸药包源头队列，用于控制后续炸药包从什么位置开始生成
+                chargeQueue: [],    //所有已出现炸药包队列
                 boom: false,
             }
         },
@@ -33,23 +36,38 @@
             getBullet(e) {
                 this.bulletQueue.push(e.key);
             },
-            generateStone() {
+            calculateChargeIndex() {
                 const wordsSum = mockData.length;
-                const randomIndex = (Math.random() * wordsSum).toFixed(0);
+                const randomIndex = parseInt(Math.random() * wordsSum);
+                return randomIndex;
+            },
+            calculateChargeInitLeft() {
+                const randomLeft = (Math.random() * this.panelWidth).toFixed();
+                return randomLeft;
+
+            },
+            generateStone() {
+                const index = this.calculateChargeIndex();
+                const left = this.calculateChargeInitLeft();
+                const charge = new Charge();
+                charge.setData({
+                    content: mockData[index],
+                    left
+                });
+                this.chargeQueue.push(charge);
             }
         },
         watch: {
             bulletQueue(newVal, oldVal) {
-                if(newVal.join('') === 'hello') {
-                    this.boom = true;
-                }
+
             }
         },
         mounted() {
+            this.panelWidth = this.$refs.panel.clientWidth;
             setInterval(() => {
                 this.generateStone();
-            }, 1000)
-            console.log(this.$refs['aircraft'])
+            }, 1500);
+
         }
     }
 </script>

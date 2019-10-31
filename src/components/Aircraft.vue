@@ -12,6 +12,10 @@
                 type: String,
                 required: true
             },
+            left: {
+                type: Number,
+                default: 0
+            },
             boom: {
                 type: Boolean,
                 required: true
@@ -23,8 +27,10 @@
         },
         methods: {
             calculate() {
+                const el = this.$refs.aircraft;
                 const time = (this.distance / this.speed).toFixed(1);
-                this.$refs.aircraft.style.animation = `move ${time}s linear 0s forwards`
+                el.style.left = `${this.left}px`;
+                el.style.animation = `move ${time}s linear 0s forwards`
             }
         },
         mounted() {
