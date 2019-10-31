@@ -38,13 +38,12 @@
             },
             calculateChargeIndex() {
                 const wordsSum = mockData.length;
-                const randomIndex = parseInt(Math.random() * wordsSum);
+                const randomIndex = ~~(Math.random() * wordsSum);
                 return randomIndex;
             },
             calculateChargeInitLeft() {
-                const randomLeft = (Math.random() * this.panelWidth).toFixed();
+                const randomLeft = ~~(Math.random() * this.panelWidth);
                 return randomLeft;
-
             },
             generateStone() {
                 const index = this.calculateChargeIndex();
@@ -60,6 +59,17 @@
         watch: {
             bulletQueue(newVal, oldVal) {
 
+            },
+            chargeQueue(newVal, oldVal) {
+                // 检查最后一个有没有超出边界即可
+                const length = this.$refs.aircraft.length;
+                // TODO
+                console.log(newVal.length);
+                if(length) {
+                    console.log(this.$refs.aircraft[length - 1])
+                    // const el = this.$refs.aircraft[length - 1];
+                    // console.log(el)
+                }
             }
         },
         mounted() {
