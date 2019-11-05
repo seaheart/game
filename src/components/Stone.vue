@@ -1,14 +1,13 @@
 <template>
-    <div class="stone">{{charge}}</div>
+    <div v-if="content" class="stone">{{content}}</div>
 </template>
 
 <script>
     export default {
         name: "Stone",
         props: {
-            charge: {
+            content: {
                 type: String,
-                required: true
             }
         }
     }

@@ -1,5 +1,5 @@
 <template>
-    <div v-if="!boom" ref="aircraft" class="aircraft">
+    <div ref="aircraft" class="aircraft">
         <slot />
     </div>
 </template>
@@ -9,17 +9,13 @@
         name: "Aircraft",
         props: {
             speed: {
-                type: String,
-                required: true
+                type: Number,
+                default: 20,
             },
             left: {
                 type: Number,
                 default: 0
             },
-            boom: {
-                type: Boolean,
-                required: true
-            }
         },
         data() {
             this.distance = 1000;
@@ -31,6 +27,11 @@
                 const time = (this.distance / this.speed).toFixed(1);
                 el.style.left = `${this.left}px`;
                 el.style.animation = `move ${time}s linear 0s forwards`
+            }
+        },
+        watch: {
+            left(newVal, oldVal) {
+                this.calculate();
             }
         },
         mounted() {

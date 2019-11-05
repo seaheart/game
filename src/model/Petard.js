@@ -1,4 +1,4 @@
-export default class Charge {
+export default class Petard {
     constructor() {
         this.content = null;
         this.left = null;

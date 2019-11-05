@@ -2,8 +2,8 @@
     <div class="container">
         <div class="temp"><input type="text" @keydown="getBullet"></div>
         <div class="panel" ref="panel">
-            <aircraft ref="aircraft" v-for="(charge, index) in chargeQueue" :key="index" speed="20" :left="charge.left" :boom="boom">
-                <stone :charge="charge.content"/>
+            <aircraft ref="aircraft" v-for="(charge, index) in petardQueue" :key="index" :speed="speed" :left="charge.left" :boom="boom">
+                <stone :content="charge.content"/>
             </aircraft>
         </div>
         <div class="plane"></div>
@@ -14,7 +14,7 @@
     import Aircraft from "./components/Aircraft.vue";
     import Stone from "./components/Stone.vue";
     import { mockData } from "./mock";
-    import Charge from './model/Charge'
+    import Petard from './model/Petard'
 
     export default {
         name: "App",
@@ -26,9 +26,9 @@
             return {
                 panelWidth: 0,    //控制面板宽度
                 speed: 20,       //游戏开始初识速度为20
-                bulletQueue: [],    //子弹队列，打飞机专用
-                initChargeQueue: [],    //炸药包源头队列，用于控制后续炸药包从什么位置开始生成
-                chargeQueue: [],    //所有已出现炸药包队列
+                bulletQueue: [],    //TODO 子弹队列，打飞机专用
+                initPetardQueue: [],    //炸药包源头队列，用于控制后续炸药包从什么位置开始生成
+                petardQueue: [],    //所有已出现炸药包队列
                 boom: false,
             }
         },
@@ -48,28 +48,17 @@
             generateStone() {
                 const index = this.calculateChargeIndex();
                 const left = this.calculateChargeInitLeft();
-                const charge = new Charge();
-                charge.setData({
+                const petard = new Petard();
+                petard.setData({
                     content: mockData[index],
                     left
                 });
-                this.chargeQueue.push(charge);
-            }
-        },
-        watch: {
-            bulletQueue(newVal, oldVal) {
-
+                this.safePetardCheck(petard);
+                this.petardQueue.push(petard);
             },
-            chargeQueue(newVal, oldVal) {
-                // 检查最后一个有没有超出边界即可
-                const length = this.$refs.aircraft.length;
-                // TODO
-                console.log(newVal.length);
-                if(length) {
-                    console.log(this.$refs.aircraft[length - 1])
-                    // const el = this.$refs.aircraft[length - 1];
-                    // console.log(el)
-                }
+            safePetardCheck(petard) {
+                // TODO 此处采取的思路是判断是否超出边界的情况出现
+                console.log(petard);
             }
         },
         mounted() {
@@ -90,6 +79,9 @@
     height: 100%;
     min-height: 100vh;
     background-color: #2a5571;
+}
+.temp {
+    display: none;
 }
 .panel {
     width: 100%;
