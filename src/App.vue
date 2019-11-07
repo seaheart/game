@@ -1,8 +1,7 @@
 <template>
     <div class="container">
-        <div class="temp"><input type="text" @keydown="getBullet"></div>
         <div class="panel" ref="panel">
-            <aircraft ref="aircraft" v-for="(charge, index) in petardQueue" :key="index" :speed="speed" :left="charge.left" :boom="boom">
+            <aircraft ref="aircraft" v-for="(charge, index) in petardsQueue" :key="index" :speed="speed" :left="charge.left">
                 <stone :content="charge.content"/>
             </aircraft>
         </div>
@@ -26,16 +25,17 @@
             return {
                 panelWidth: 0,    //控制面板宽度
                 speed: 20,       //游戏开始初识速度为20
-                bulletQueue: [],    //TODO 子弹队列，打飞机专用
-                initPetardQueue: [],    //炸药包源头队列，用于控制后续炸药包从什么位置开始生成
-                petardQueue: [],    //所有已出现炸药包队列
-                boom: false,
+                bulletsQueue: [],    //子弹队列，打飞机专用
+                petardsQueue: [],    //所有已出现炸药包队列
+                petardsLock: [],   //瞄准锁，也是一个队列，刚开始模糊瞄准  {index, petard}
+            }
+        },
+        computed: {
+            comparedIndex() {
+                return this.bulletsQueue.length;
             }
         },
         methods: {
-            getBullet(e) {
-                this.bulletQueue.push(e.key);
-            },
             calculateChargeIndex() {
                 const wordsSum = mockData.length;
                 const randomIndex = ~~(Math.random() * wordsSum);
@@ -54,7 +54,7 @@
                     left
                 });
                 if(this.safePetardCheck(petard)) {
-                    this.petardQueue.push(petard);
+                    this.petardsQueue.push(petard);
                 } else {
                     this.generateStone();
                 }
@@ -62,6 +62,44 @@
             safePetardCheck(petard) {
                 const length = petard.content.length;
                 return ( petard.left + length * 11 ) <= this.panelWidth
+            },
+            precisePetard(bullet) {
+                // TODO 处理特殊情况在这里处理，比如说go与going
+                let targetPetardIndex = -1;
+
+                if(this.petardsLock.length) {
+                    // 这个时候瞄准队列中已经初步瞄准了一些
+                    this.petardsLock = this.petardsLock.reduce((pre, cur)=> {
+                        if(cur.petard[this.comparedIndex + 1] === bullet) {
+                            if(cur.petard.length === this.comparedIndex + 1) {
+                                targetPetardIndex = cur.index;
+                                throw Error;
+                            } else {
+                                pre.push(cur)
+                            }
+                        } else return pre;
+                    },[]);
+                } else {
+                    // 这个时候瞄准队列中为空，是刚开始打或刚打完一个火药桶的状态
+                }
+            },
+            supplementBullet(bullet) {
+                if(this.petardsLock.length === 1) {
+                    // 已经瞄准了一些目标，当长度为1时即正式瞄准
+                }else {
+                    // 还并未完全瞄准目标，现在瞄准去吧
+                    this.precisePetard(bullet)
+                }
+            },
+            addListener() {
+                window.addEventListener('keydown', e => {
+                    if(e.keyCode >=65 && e.keyCode <= 90) {
+                        this.supplementBullet(e.key);
+                    } else {
+                        this.bulletsQueue = [];
+                    }
+                    console.log(this.bulletsQueue);
+                })
             }
         },
         mounted() {
@@ -69,7 +107,7 @@
             setInterval(() => {
                 this.generateStone();
             }, 2500);
-
+            this.addListener();
         }
     }
 </script>
@@ -82,9 +120,6 @@
     height: 100%;
     min-height: 100vh;
     background-color: #2a5571;
-}
-.temp {
-    display: none;
 }
 .panel {
     width: 100%;
