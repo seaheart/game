@@ -53,19 +53,22 @@
                     content: mockData[index],
                     left
                 });
-                this.safePetardCheck(petard);
-                this.petardQueue.push(petard);
+                if(this.safePetardCheck(petard)) {
+                    this.petardQueue.push(petard);
+                } else {
+                    this.generateStone();
+                }
             },
             safePetardCheck(petard) {
-                // TODO 此处采取的思路是判断是否超出边界的情况出现
-                console.log(petard);
+                const length = petard.content.length;
+                return ( petard.left + length * 11 ) <= this.panelWidth
             }
         },
         mounted() {
             this.panelWidth = this.$refs.panel.clientWidth;
             setInterval(() => {
                 this.generateStone();
-            }, 1500);
+            }, 2500);
 
         }
     }
