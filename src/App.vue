@@ -1,7 +1,8 @@
 <template>
     <div class="container">
         <div class="panel" ref="panel">
-            <aircraft ref="aircraft" v-for="(petard, index) in petardsQueue" :key="index" :speed="speed" :left="petard.left" :boom="petard.boom">
+            <!--解决key的问题-->
+            <aircraft ref="aircraft" v-for="(petard, index) in petardsQueue" :key="index" :speed="speed" :left="petard.left">
                 <stone :content="petard.content"/>
             </aircraft>
         </div>
@@ -27,12 +28,17 @@
                 speed: 20,       //游戏开始初识速度为20
                 bulletsQueue: [],    //子弹队列，打飞机专用
                 petardsQueue: [],    //所有已出现炸药包队列
-                petardsLock: [],   //瞄准锁，也是一个队列，刚开始模糊瞄准  {index, petard}
+                petardsLockQueue: [],   //瞄准锁，也是一个队列，刚开始模糊瞄准  {index, petard}
             }
         },
         computed: {
-            comparedIndex() {
+            compareIndex() {
                 return this.bulletsQueue.length;
+            }
+        },
+        watch: {
+            bulletsQueue(newVal, oldVal){
+                console.log(newVal);
             }
         },
         methods: {
@@ -66,45 +72,73 @@
             precisePetard(bullet) {
                 // TODO 处理特殊情况在这里处理，比如说go与going
                 let targetPetardIndex = -1;
-
+                let tempQueue = [];
                 try {
-                    if(this.petardsLock.length) {
+                    if(this.petardsLockQueue.length) {
                         // 这个时候瞄准队列中已经初步瞄准了一些
-                        this.petardsLock = this.petardsLock.reduce((pre, cur)=> {
-                            if(cur.petard.content[this.comparedIndex + 1] === bullet) {
-                                if(cur.petard.content.length === this.comparedIndex + 1) {
+                        tempQueue = this.petardsLockQueue.reduce((pre, cur)=> {
+                            if(cur.petard.content[this.compareIndex] === bullet) {
+                                if(cur.petard.content.length === this.compareIndex + 1) {
                                     targetPetardIndex = cur.index;
                                     throw Error;
                                 } else {
-                                    pre.push(cur)
+                                    pre.push(cur);
+                                    return pre;
                                 }
                             } else return pre;
                         },[]);
+
+
+
                     } else {
                         // 这个时候瞄准队列中为空，是刚开始打或刚打完一个火药桶的状态
-                        this.petardsLock = this.petardsQueue.reduce((pre, cur, index) => {
-                            if(cur.content[this.comparedIndex + 1] === bullet) {
-                                if(cur.content.length === this.comparedIndex + 1) {
+                        this.petardsLockQueue = this.petardsQueue.reduce((pre, cur, index) => {
+                            if(cur.content[this.compareIndex] === bullet) {
+                                if(cur.content.length === this.compareIndex + 1) {
                                     targetPetardIndex = index;
                                     throw Error;
                                 } else {
-                                    pre.push({index, petard: cur})
+                                    pre.push({index, petard: cur});
+                                    return pre;
                                 }
                             } else return pre;
-
                         }, []);
+                        console.log('pet');
+                        console.log(this.petardsLockQueue);
                     }
-                } finally {
+
+                    if(tempQueue.length >= 0) {
+                        //更精确了一步
+                        this.petardsLockQueue = tempQueue;
+                        this.bulletsQueue.push(bullet);
+                    }
+
+                } catch (e) {
                     if(targetPetardIndex !== -1) {
                         //找到那个要消灭的对象啦
-                        this.petardsQueue[targetPetardIndex].boom = true;
+                        console.log('bingo');
+                        this.petardsQueue.splice(targetPetardIndex, 1);
+                        this.bulletsQueue = [];
+                        this.petardsLockQueue = [];
                     }
                 }
 
             },
             supplementBullet(bullet) {
-                if(this.petardsLock.length === 1) {
+                if(this.petardsLockQueue.length === 1) {
                     // 已经瞄准了一些目标，当长度为1时即正式瞄准
+                    if(this.petardsLockQueue[0].petard.content[this.compareIndex] === bullet) {
+                        if(this.petardsLockQueue[0].petard.content.length === this.compareIndex + 1) {
+                            // 抓到你啦
+                            const targetPetardIndex = this.petardsLockQueue[0].index;
+                            this.petardsQueue.splice(targetPetardIndex, 1);
+                            this.bulletsQueue = [];
+                            this.petardsLockQueue = [];
+                        } else {
+                            this.bulletsQueue.push(bullet);
+                        }
+                    }
+
                 }else {
                     // 还并未完全瞄准目标，现在瞄准去吧
                     this.precisePetard(bullet)
@@ -117,7 +151,6 @@
                     } else {
                         this.bulletsQueue = [];
                     }
-                    console.log(this.bulletsQueue);
                 })
             }
         },
@@ -125,7 +158,7 @@
             this.panelWidth = this.$refs.panel.clientWidth;
             setInterval(() => {
                 this.generateStone();
-            }, 2500);
+            }, 1500);
             this.addListener();
         }
     }

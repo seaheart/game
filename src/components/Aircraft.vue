@@ -1,5 +1,5 @@
 <template>
-    <div v-if="!boom" ref="aircraft" class="aircraft">
+    <div ref="aircraft" class="aircraft">
         <slot />
     </div>
 </template>
@@ -8,10 +8,6 @@
     export default {
         name: "Aircraft",
         props: {
-            boom: {
-                type: Boolean,
-                required: true
-            },
             speed: {
                 type: Number,
                 default: 20,
