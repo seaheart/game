@@ -1,8 +1,8 @@
 <template>
     <div class="container">
         <div class="panel" ref="panel">
-            <aircraft ref="aircraft" v-for="(charge, index) in petardsQueue" :key="index" :speed="speed" :left="charge.left">
-                <stone :content="charge.content"/>
+            <aircraft ref="aircraft" v-for="(petard, index) in petardsQueue" :key="index" :speed="speed" :left="petard.left" :boom="petard.boom">
+                <stone :content="petard.content"/>
             </aircraft>
         </div>
         <div class="plane"></div>
@@ -67,21 +67,40 @@
                 // TODO 处理特殊情况在这里处理，比如说go与going
                 let targetPetardIndex = -1;
 
-                if(this.petardsLock.length) {
-                    // 这个时候瞄准队列中已经初步瞄准了一些
-                    this.petardsLock = this.petardsLock.reduce((pre, cur)=> {
-                        if(cur.petard[this.comparedIndex + 1] === bullet) {
-                            if(cur.petard.length === this.comparedIndex + 1) {
-                                targetPetardIndex = cur.index;
-                                throw Error;
-                            } else {
-                                pre.push(cur)
-                            }
-                        } else return pre;
-                    },[]);
-                } else {
-                    // 这个时候瞄准队列中为空，是刚开始打或刚打完一个火药桶的状态
+                try {
+                    if(this.petardsLock.length) {
+                        // 这个时候瞄准队列中已经初步瞄准了一些
+                        this.petardsLock = this.petardsLock.reduce((pre, cur)=> {
+                            if(cur.petard.content[this.comparedIndex + 1] === bullet) {
+                                if(cur.petard.content.length === this.comparedIndex + 1) {
+                                    targetPetardIndex = cur.index;
+                                    throw Error;
+                                } else {
+                                    pre.push(cur)
+                                }
+                            } else return pre;
+                        },[]);
+                    } else {
+                        // 这个时候瞄准队列中为空，是刚开始打或刚打完一个火药桶的状态
+                        this.petardsLock = this.petardsQueue.reduce((pre, cur, index) => {
+                            if(cur.content[this.comparedIndex + 1] === bullet) {
+                                if(cur.content.length === this.comparedIndex + 1) {
+                                    targetPetardIndex = index;
+                                    throw Error;
+                                } else {
+                                    pre.push({index, petard: cur})
+                                }
+                            } else return pre;
+
+                        }, []);
+                    }
+                } finally {
+                    if(targetPetardIndex !== -1) {
+                        //找到那个要消灭的对象啦
+                        this.petardsQueue[targetPetardIndex].boom = true;
+                    }
                 }
+
             },
             supplementBullet(bullet) {
                 if(this.petardsLock.length === 1) {
