@@ -2,7 +2,7 @@
     <div class="container">
         <div class="panel" ref="panel">
             <aircraft ref="aircraft" v-for="(petard, index) in petardsQueue" :key="petard.key" :speed="speed" :left="petard.left">
-                <stone :content="petard.content" :is-focus="calculateIsFocus(index)"/>
+                <stone :content="petard.content" :is-focus="calculateIsFocus(index)" :focus-length="compareIndex"/>
             </aircraft>
         </div>
         <p class="score">
