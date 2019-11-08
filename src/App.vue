@@ -1,9 +1,8 @@
 <template>
     <div class="container">
         <div class="panel" ref="panel">
-            <!--解决key的问题-->
-            <aircraft ref="aircraft" v-for="petard in petardsQueue" :key="petard.key" :speed="speed" :left="petard.left">
-                <stone :content="petard.content"/>
+            <aircraft ref="aircraft" v-for="(petard, index) in petardsQueue" :key="petard.key" :speed="speed" :left="petard.left">
+                <stone :content="petard.content" :is-focus="calculateIsFocus(index)"/>
             </aircraft>
         </div>
         <p class="score">
@@ -53,6 +52,9 @@
             calculatePetardInitLeft() {
                 return  ~~(Math.random() * this.panelWidth);
             },
+            calculateIsFocus(index) {
+                return !!this.petardsLockQueue.find(({index: lockIndex}) => lockIndex === index)
+            },
             generateStone() {
                 const index = this.calculatePetardIndex();
                 const left = this.calculatePetardInitLeft();
@@ -92,7 +94,9 @@
                                 pre.push(cur);
                                 return pre;
                             }
-                        } else return pre;
+                        } else {
+                            return pre;
+                        }
                     }, []);
 
                     if(tempLockQueue.length > 0) {
@@ -132,6 +136,7 @@
                         this.supplyBullet(e.key);
                     } else {
                         this.bulletsQueue = [];
+                        this.petardsLockQueue = [];
                     }
                 })
             }

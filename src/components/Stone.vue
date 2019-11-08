@@ -1,5 +1,5 @@
 <template>
-    <div v-if="content" class="stone">{{content}}</div>
+    <div :class="['stone', { 'stone-focus': isFocus }]">{{content}}</div>
 </template>
 
 <script>
@@ -8,6 +8,11 @@
         props: {
             content: {
                 type: String,
+                required: true
+            },
+            isFocus: {
+                type: Boolean,
+                required: true
             }
         }
     }
@@ -20,5 +25,8 @@
     letter-spacing: 2px;
     padding: 3px 10px;
     background-color: rgba(153,67,87,0.79);
+    &-focus {
+        border: 1px solid #ffcf53;
+    }
 }
 </style>
