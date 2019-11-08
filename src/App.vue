@@ -6,6 +6,9 @@
                 <stone :content="petard.content"/>
             </aircraft>
         </div>
+        <p class="score">
+            {{score}}
+        </p>
         <div class="plane"></div>
     </div>
 </template>
@@ -26,6 +29,7 @@
             return {
                 panelWidth: 0,    //控制面板宽度
                 speed: 20,       //游戏开始初识速度为20
+                score: 0,
                 bulletsQueue: [],    //子弹队列，打飞机专用 string
                 petardsQueue: [],    //所有已出现炸药包队列 petard
                 petardsLockQueue: [],   //瞄准锁，也是一个队列，刚开始模糊瞄准  {index, petard}
@@ -71,6 +75,7 @@
             },
             boomPetard(targetIndex) {
                 this.petardsQueue.splice(targetIndex, 1);
+                this.score ++;
                 this.bulletsQueue = [];
                 this.petardsLockQueue = [];
             },
@@ -155,6 +160,14 @@
     height: 100vh;
     position: relative;
     overflow-y: hidden;
+}
+.score {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    padding: 3px 10px;
+    background-color: #fff;
+    border-radius: 5px;
 }
 .plane {
     height: 0;
