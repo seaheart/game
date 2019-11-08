@@ -2,7 +2,7 @@
     <div class="container">
         <div class="panel" ref="panel">
             <!--解决key的问题-->
-            <aircraft ref="aircraft" v-for="(petard, index) in petardsQueue" :key="index" :speed="speed" :left="petard.left">
+            <aircraft ref="aircraft" v-for="petard in petardsQueue" :key="petard.key" :speed="speed" :left="petard.left">
                 <stone :content="petard.content"/>
             </aircraft>
         </div>
@@ -34,7 +34,7 @@
         computed: {
             compareIndex() {
                 return this.bulletsQueue.length;
-            }
+            },
         },
         watch: {
             bulletsQueue(newVal, oldVal){
@@ -42,22 +42,22 @@
             }
         },
         methods: {
-            calculateChargeIndex() {
+            calculatePetardIndex() {
                 const wordsSum = mockData.length;
-                const randomIndex = ~~(Math.random() * wordsSum);
-                return randomIndex;
+                return ~~(Math.random() * wordsSum);
             },
-            calculateChargeInitLeft() {
-                const randomLeft = ~~(Math.random() * this.panelWidth);
-                return randomLeft;
+            calculatePetardInitLeft() {
+                return  ~~(Math.random() * this.panelWidth);
             },
             generateStone() {
-                const index = this.calculateChargeIndex();
-                const left = this.calculateChargeInitLeft();
+                const index = this.calculatePetardIndex();
+                const left = this.calculatePetardInitLeft();
                 const petard = new Petard();
+                const content = mockData[index];
                 petard.setData({
-                    content: mockData[index],
-                    left
+                    content,
+                    left,
+                    key: `${content}-${new Date()}`
                 });
                 if(this.safePetardCheck(petard)) {
                     this.petardsQueue.push(petard);
@@ -69,8 +69,12 @@
                 const length = petard.content.length;
                 return ( petard.left + length * 11 ) <= this.panelWidth
             },
+            boomPetard(targetIndex) {
+                this.petardsQueue.splice(targetIndex, 1);
+                this.bulletsQueue = [];
+                this.petardsLockQueue = [];
+            },
             precisePetard(bullet) {
-                // TODO 处理特殊情况在这里处理，比如说go与going
                 let targetPetardIndex = -1;
                 let tempQueue = [];
                 try {
@@ -92,7 +96,7 @@
 
                     } else {
                         // 这个时候瞄准队列中为空，是刚开始打或刚打完一个火药桶的状态
-                        this.petardsLockQueue = this.petardsQueue.reduce((pre, cur, index) => {
+                        tempQueue = this.petardsQueue.reduce((pre, cur, index) => {
                             if(cur.content[this.compareIndex] === bullet) {
                                 if(cur.content.length === this.compareIndex + 1) {
                                     targetPetardIndex = index;
@@ -103,11 +107,9 @@
                                 }
                             } else return pre;
                         }, []);
-                        console.log('pet');
-                        console.log(this.petardsLockQueue);
                     }
 
-                    if(tempQueue.length >= 0) {
+                    if(tempQueue.length > 0) {
                         //更精确了一步
                         this.petardsLockQueue = tempQueue;
                         this.bulletsQueue.push(bullet);
@@ -116,10 +118,7 @@
                 } catch (e) {
                     if(targetPetardIndex !== -1) {
                         //找到那个要消灭的对象啦
-                        console.log('bingo');
-                        this.petardsQueue.splice(targetPetardIndex, 1);
-                        this.bulletsQueue = [];
-                        this.petardsLockQueue = [];
+                        this.boomPetard(targetPetardIndex);
                     }
                 }
 
@@ -131,9 +130,7 @@
                         if(this.petardsLockQueue[0].petard.content.length === this.compareIndex + 1) {
                             // 抓到你啦
                             const targetPetardIndex = this.petardsLockQueue[0].index;
-                            this.petardsQueue.splice(targetPetardIndex, 1);
-                            this.bulletsQueue = [];
-                            this.petardsLockQueue = [];
+                            this.boomPetard(targetPetardIndex);
                         } else {
                             this.bulletsQueue.push(bullet);
                         }
