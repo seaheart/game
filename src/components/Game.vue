@@ -22,7 +22,7 @@
     import DATA from "../data";
     import Petard from '../model/Petard'
 
-    const stageSection = 2;
+    const stageSection = 3;
 
     export default {
         name: "Game",
@@ -36,7 +36,8 @@
                 speed: 20,       //游戏开始初识速度为20
                 score: 0,
                 bulletsQueue: [],    //子弹队列，打飞机专用 string
-                petardsQueue: [],    //所有已出现炸药包队列 petard
+                petardsTotal: 0,
+                petardsQueue: [],    //目前出现炸药包队列 petard
                 petardsLockQueue: [],   //瞄准锁，也是一个队列，刚开始模糊瞄准  {index, petard}
                 isShowStage: false,
             }
@@ -53,8 +54,8 @@
             bulletsQueue(newVal, oldVal){
                 console.log(newVal);
             },
-            petardsQueue(newVal, oldVal) {
-                if(newVal.length >= stageSection) {
+            petardsTotal(newVal, oldVal) {
+                if(newVal >= this.stage * stageSection) {
                     this.pause();
                 }
             },
@@ -90,7 +91,7 @@
             start() {
                 this.timer = setInterval(() => {
                     this.generateStone();
-                }, 3000);
+                }, 2000);
             },
             generateStone() {
                 const index = this.calculatePetardIndex();
@@ -104,6 +105,7 @@
                 });
                 if(this.calculateIsSafePetard(petard)) {
                     this.petardsQueue.push(petard);
+                    this.petardsTotal++;
                 } else {
                     this.generateStone();
                 }
