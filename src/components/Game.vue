@@ -15,7 +15,7 @@
 <script>
     import Aircraft from "../components/Aircraft.vue";
     import Stone from "../components/Stone.vue";
-    import { mockData } from "../mock";
+    import DATA from "../data";
     import Petard from '../model/Petard'
 
     export default {
@@ -46,7 +46,7 @@
         },
         methods: {
             calculatePetardIndex() {
-                const wordsSum = mockData.length;
+                const wordsSum = DATA.length;
                 return ~~(Math.random() * wordsSum);
             },
             calculatePetardInitLeft() {
@@ -63,7 +63,7 @@
                 const index = this.calculatePetardIndex();
                 const left = this.calculatePetardInitLeft();
                 const petard = new Petard();
-                const content = mockData[index];
+                const content = DATA[index];
                 petard.setData({
                     content,
                     left,
@@ -145,7 +145,7 @@
             this.panelWidth = this.$refs.panel.clientWidth;
             setInterval(() => {
                 this.generateStone();
-            }, 1500);
+            }, 2000);
             this.addListener();
         }
     }
