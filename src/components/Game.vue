@@ -1,5 +1,9 @@
 <template>
     <div class="container">
+        <div class="screen" v-show="isShowStage">
+            <p class="title">stage</p>
+            <p class="stage">{{stage}}</p>
+        </div>
         <div class="panel" ref="panel">
             <aircraft ref="aircraft" v-for="(petard, index) in petardsQueue" :key="petard.key" :speed="speed" :left="petard.left">
                 <stone :content="petard.content" :is-focus="calculateIsFocus(index)" :focus-length="compareIndex"/>
@@ -18,6 +22,8 @@
     import DATA from "../data";
     import Petard from '../model/Petard'
 
+    const stageSection = 2;
+
     export default {
         name: "Game",
         components: {
@@ -32,16 +38,35 @@
                 bulletsQueue: [],    //子弹队列，打飞机专用 string
                 petardsQueue: [],    //所有已出现炸药包队列 petard
                 petardsLockQueue: [],   //瞄准锁，也是一个队列，刚开始模糊瞄准  {index, petard}
+                isShowStage: false,
             }
         },
         computed: {
             compareIndex() {
                 return this.bulletsQueue.length;
             },
+            stage() {
+                return ~~(this.score / stageSection) + 1;
+            }
         },
         watch: {
             bulletsQueue(newVal, oldVal){
                 console.log(newVal);
+            },
+            petardsQueue(newVal, oldVal) {
+                if(newVal.length >= stageSection) {
+                    this.pause();
+                }
+            },
+            stage(newVal, oldVal) {
+                if(newVal !== oldVal) {
+                    this.isShowStage = true;
+                    this.pause();
+                    setTimeout(() => {
+                        this.isShowStage = false;
+                        this.start();
+                    }, 3000)
+                }
             }
         },
         methods: {
@@ -58,6 +83,14 @@
             calculateIsSafePetard(petard) {
                 const length = petard.content.length;
                 return ( petard.left + length * 11 ) <= this.panelWidth;
+            },
+            pause() {
+                clearInterval(this.timer);
+            },
+            start() {
+                this.timer = setInterval(() => {
+                    this.generateStone();
+                }, 3000);
             },
             generateStone() {
                 const index = this.calculatePetardIndex();
@@ -143,9 +176,7 @@
         },
         mounted() {
             this.panelWidth = this.$refs.panel.clientWidth;
-            setInterval(() => {
-                this.generateStone();
-            }, 2000);
+            this.start();
             this.addListener();
         }
     }
@@ -157,6 +188,29 @@
     height: 100%;
     min-height: 100vh;
     background-color: #2a5571;
+}
+.screen{
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #2a5571;
+    .title {
+        color: #fff;
+        font-size: 30px;
+        letter-spacing: 1px;
+    }
+    .stage {
+        margin-top: 60px;
+        color: #fff;
+        font-size: 50px;
+    }
 }
 .panel {
     width: 100%;
