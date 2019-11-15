@@ -37,7 +37,7 @@
         data() {
             return {
                 panelWidth: 0,    //控制面板宽度
-                speed: 20,       //游戏开始初识速度为20
+                speed: 30,       //游戏开始初识速度为20
                 score: 0,
                 health: 10,         //初始生命值为10
                 bulletsQueue: [],    //子弹队列，打飞机专用 string
@@ -70,6 +70,7 @@
                     this.isShowStage = true;
                     this.pause();
                     setTimeout(() => {
+                        this.speed += 30;
                         this.isShowStage = false;
                         this.start();
                     }, 3000)
