@@ -16,6 +16,10 @@
                 type: Number,
                 default: 0
             },
+            outOfRange: {
+                type: Function,
+                default: () => {}
+            }
         },
         data() {
             this.distance = 1000;
@@ -36,6 +40,9 @@
         },
         mounted() {
             this.calculate();
+            this.$refs.aircraft.addEventListener('animationend', () => {
+                this.$emit('outOfRange');
+            })
         }
     }
 </script>
