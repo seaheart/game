@@ -17,6 +17,9 @@
         <p class="score">
             {{score}}
         </p>
+        <div class="health">
+            {{health}}
+        </div>
     </div>
 </template>
 
@@ -274,5 +277,17 @@
     padding: 3px 10px;
     background-color: #fff;
     border-radius: 5px;
+}
+.health {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 54px;
+    height: 48px;
+    line-height: 45px;
+    text-align: center;
+    color: #fff;
+    background: url("../assets/img/heart.svg") no-repeat;
+    background-size: 100%;
 }
 </style>
