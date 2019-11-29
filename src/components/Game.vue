@@ -1,9 +1,17 @@
 <template>
     <div class="container">
         <div class="summary" v-if="isShowSummary">
-            <p class="summary-title">score</p>
-            <p class="summary-score">{{score}}</p>
-            <button class="summary-replay" @click="init">replay</button>
+            <div class="wrapper">
+                <div class="cell">
+                    <p class="title">score</p>
+                    <p>{{score}}</p>
+                </div>
+                <div class="cell">
+                    <p class="title">precision</p>
+                    <p>{{precision}}</p>
+                </div>
+            </div>
+            <button class="summary-replay" @click="init">retry</button>
         </div>
         <div class="screen" v-show="isShowStage">
             <p class="screen-title">stage</p>
@@ -39,6 +47,8 @@
         },
         data() {
             return {
+                validEnters:0,
+                totalEnters:0,
                 panelWidth: 0,    //控制面板宽度
                 speed: 30,       //游戏开始初识速度为20
                 score: 0,
@@ -57,6 +67,10 @@
             },
             stage() {
                 return ~~(this.score / stageSection) + 1;
+            },
+            precision() {
+                const percent = Math.floor(this.validEnters / this.totalEnters * 100);
+                return percent ? `${percent}%` : '0%'
             }
         },
         watch: {
@@ -80,7 +94,7 @@
                 }
             },
             health(newVal, oldVal) {
-                this.isShowSummary = newVal === 0;
+                this.isShowSummary = newVal <= 0;
             }
         },
         methods: {
@@ -127,6 +141,8 @@
                 }
             },
             boomPetard(targetIndex) {
+                const length = this.petardsQueue[targetIndex].content.length;
+                this.validEnters += length;
                 this.petardsQueue.splice(targetIndex, 1);
                 this.score ++;
                 this.bulletsQueue = [];
@@ -187,6 +203,7 @@
             addListener() {
                 window.addEventListener('keydown', e => {
                     if(e.keyCode >=65 && e.keyCode <= 90) {
+                        this.totalEnters ++;
                         this.supplyBullet(e.key);
                     } else {
                         this.bulletsQueue = [];
@@ -222,15 +239,23 @@
     align-items: center;
     justify-content: center;
     background-color: #2a5571;
-    &-title {
-        color: #fff;
-        font-size: 30px;
-        letter-spacing: 1px;
+    .wrapper {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
     }
-    &-score {
-        margin-top: 60px;
+    .cell {
+        width: 33.3%;
+        text-align: center;
         color: #fff;
-        font-size: 50px;
+        font-size: 20px;
+        letter-spacing: 1px;
+        .title {
+            font-size: 25px;
+            margin-bottom: 16px;
+        }
     }
     &-replay {
         margin-top: 60px;
